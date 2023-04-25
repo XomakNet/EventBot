@@ -15,6 +15,10 @@ export interface Request {
 const client = new Client(process.env.DATABASE_CONNECTION_STRING as string);
 client.connect();
 
+const addLog = async (requestId: string, text: string, type: string) => {
+    await client.query("INSERT INTO log (content, \"requestId\", \"type\") VALUES ($1, $2, $3)", [text, requestId, type]);
+}
+
 export const addRegistration = async (eventId: string,
                                       userId: string,
                                       name: string,
@@ -24,7 +28,8 @@ export const addRegistration = async (eventId: string,
                                       professionalLevel: string,
                                       confidence: string): Promise<string> => {
     const requestCode = makeId(6);
-    const values = [eventId, randomUUID(), requestCode, userId, name, telegramName, status, professionalSphere, professionalLevel, confidence];
+    const requestId = randomUUID();
+    const values = [eventId, requestId, requestCode, userId, name, telegramName, status, professionalSphere, professionalLevel, confidence];
     await client.query("INSERT INTO requests " +
         "(\"eventId\", " +
         "\"requestId\", " +
@@ -37,6 +42,7 @@ export const addRegistration = async (eventId: string,
         "\"professionalLevel\"," +
         "\"confidence\")" +
         "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);", values);
+    await addLog(requestId, "", "newRegistration");
     return requestCode;
 }
 
@@ -49,11 +55,13 @@ export const hasPlacesForEvent = async (eventId: string): Promise<boolean> => {
 export const updateConfidence = async (requestId: string, newConfidence: string) => {
     const values = [requestId, newConfidence];
     await client.query("UPDATE requests SET confidence = $2 WHERE \"requestId\" = $1", values);
+    await addLog(requestId, `New confidence: ${newConfidence}`, "updateConfidence");
 }
 
 export const cancelRequest = async (requestId: string) => {
     const values = [requestId, "refused"];
     await client.query("UPDATE requests SET status = $2 WHERE \"requestId\" = $1", values);
+    await addLog(requestId, "", "cancelRequest");
 }
 
 export const getRegistrationForUsers = async (userId: string): Promise<Request[]> => {
