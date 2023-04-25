@@ -1,0 +1,22 @@
+import {Scenes, session, Telegraf} from "telegraf";
+import {registrationScene} from "./registration";
+import {myRegistrationScenes} from "./my_registrations";
+import {mainScene} from "./main_scene";
+
+const bot = new Telegraf<Scenes.SceneContext>(process.env.BOT_TOKEN as string);
+
+const stage = new Scenes.Stage<Scenes.SceneContext<any>>(
+    [
+        mainScene,
+        registrationScene,
+        myRegistrationScenes
+    ], {default: "main_scene"});
+
+bot.use(session());
+bot.use(stage.middleware());
+
+
+bot.launch();
+
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
