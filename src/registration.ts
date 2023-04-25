@@ -24,7 +24,11 @@ const questions: Question[] = [
             "Backend-разработка",
             "Frontend-разработка",
             "Fullstack-разработка",
-            "QA"],
+            "QA",
+            "Менеджмент",
+            "UI/UX",
+            "DevOps"
+        ],
         answerOnlyFromList: false,
     },
     {
@@ -33,7 +37,7 @@ const questions: Question[] = [
         answerOnlyFromList: false
     },
     {
-        text: "Все мы знаем, что кто-то регистрируется на бесплатные мероприятия и не приходит." +
+        text: "Все мы знаем, что кто-то регистрируется на бесплатные мероприятия и не приходит. " +
             "Чтобы нам было проще, расскажите, пожалуйста, с какой вероятностью вы посетите наше мероприятие. " +
             "Позже можно будет изменить свое мнение или отменить регистрацию.",
         options: confidenceOptions,
@@ -57,7 +61,14 @@ const sendNextQuestion = (ctx: Scenes.SceneContext<RegistrationSession>) => {
 
 const proceedAnswer = (ctx: Scenes.SceneContext<RegistrationSession>) => {
     if (isTextMessage(ctx.message)) {
-        ctx.scene.session.answers.push(ctx.message.text);
+        const text = ctx.message.text;
+        const currentQuestion = questions[ctx.scene.session.currentStep];
+        if (currentQuestion.answerOnlyFromList && currentQuestion.options) {
+            if (currentQuestion.options.findIndex(x => x === text) === -1) {
+                return false;
+            }
+        }
+        ctx.scene.session.answers.push(text);
         return true;
     }
 
@@ -67,7 +78,7 @@ const proceedAnswer = (ctx: Scenes.SceneContext<RegistrationSession>) => {
 export const registrationScene = new Scenes.BaseScene<Scenes.SceneContext<RegistrationSession>>("registration_scene");
 
 registrationScene.enter(async ctx => {
-    if(!await hasPlacesForEvent(eventId)) {
+    if (!await hasPlacesForEvent(eventId)) {
         await ctx.reply("К сожалению, на мероприятие не осталось мест. Пожалуйста, попробуйте позже. Следите за новостями.");
         await ctx.scene.enter("main_scene");
         return;
