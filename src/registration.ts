@@ -24,6 +24,7 @@ const questions: Question[] = [
             "Backend-разработка",
             "Frontend-разработка",
             "Fullstack-разработка",
+            "Мобильная разработка",
             "QA",
             "Менеджмент",
             "UI/UX",
