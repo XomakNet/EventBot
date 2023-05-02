@@ -15,7 +15,7 @@ export interface Request {
 const client = new Client(process.env.DATABASE_CONNECTION_STRING as string);
 client.connect();
 
-const addLog = async (requestId: string, text: string, type: string) => {
+export const addLog = async (requestId: string, text: string, type: string) => {
     await client.query("INSERT INTO log (content, \"requestId\", \"type\") VALUES ($1, $2, $3)", [text, requestId, type]);
 }
 
@@ -64,7 +64,12 @@ export const cancelRequest = async (requestId: string) => {
     await addLog(requestId, "", "cancelRequest");
 }
 
-export const getRegistrationForUsers = async (userId: string): Promise<Request[]> => {
+export const getRegistrationForUser = async (userId: string): Promise<Request[]> => {
     const result = await client.query("SELECT * FROM requests WHERE \"userId\" = $1 AND status = $2", [userId, "created"]);
+    return result.rows;
+}
+
+export const getAllActiveRequests = async (): Promise<Request[]> => {
+    const result = await client.query("SELECT * FROM requests WHERE status = $1", ["created"]);
     return result.rows;
 }

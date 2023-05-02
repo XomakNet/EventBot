@@ -1,5 +1,5 @@
 import {Scenes} from "telegraf";
-import {cancelRequest, getRegistrationForUsers, updateConfidence} from "./database";
+import {cancelRequest, getRegistrationForUser, updateConfidence} from "./database";
 import {SceneSessionData} from "telegraf/typings/scenes";
 import {isTextMessage} from "./typeguards";
 import {confidenceOptions} from "./common_data";
@@ -16,7 +16,7 @@ myRegistrationScenes.enter(async ctx => {
         throw new Error("Got message without chatId");
     }
 
-    const registrations = await getRegistrationForUsers(ctx.message.chat.id.toString());
+    const registrations = await getRegistrationForUser(ctx.message.chat.id.toString());
     const registrationButtons = registrations.map(x => [{"text": `${x.requestCode}: ${x.name}`}]);
     const text = registrations.length > 0 ? "У вас есть следующие регистрации. Выберите регистрацию для изменения или отмены." : "У вас нет регистраций на мероприятие."
     ctx.reply(text, {
@@ -30,7 +30,7 @@ myRegistrationScenes.enter(async ctx => {
 });
 
 myRegistrationScenes.on('text', async ctx => {
-	const registrations = await getRegistrationForUsers(ctx.message.chat.id.toString());
+	const registrations = await getRegistrationForUser(ctx.message.chat.id.toString());
 	if(!isTextMessage(ctx.message)) {
         ctx.reply("Некорректный ввод, попробуйте ещё раз.");
     }
