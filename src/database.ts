@@ -73,3 +73,19 @@ export const getAllActiveRequests = async (): Promise<Request[]> => {
     const result = await client.query("SELECT * FROM requests WHERE status = $1", ["created"]);
     return result.rows;
 }
+
+export const findActiveRequests = async (request: string): Promise<Request[]> => {
+    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND (\"requestCode\" ILIKE $2 OR \"name\" LIKE $3)", ["created", `${request}%`, `%${request}%`]);
+    return result.rows;
+};
+
+export const checkIn = async (requestId: string): Promise<void> => {
+    const values = [requestId, "checkedIn"];
+    await client.query("UPDATE requests SET status = $2 WHERE \"requestId\" = $1", values);
+    await addLog(requestId, "", "checkIn");
+};
+
+export const hasAdminRights = async (userId: string): Promise<boolean> => {
+    const result = await client.query("SELECT count(*) FROM admins WHERE \"userId\" = $1", [userId]);
+    return Number(result.rows[0].count) === 1;
+}

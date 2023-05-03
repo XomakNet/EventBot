@@ -1,11 +1,11 @@
 import {Scenes} from "telegraf";
 import {isTextMessage} from "./typeguards";
-import {SceneContext} from "telegraf/typings/scenes";
+import {hasAdminRights} from "./database";
 
 
 export const mainScene = new Scenes.BaseScene<Scenes.SceneContext>("main_scene");
 
-const sendMenu = (ctx: SceneContext) => {
+const sendMenu = (ctx: Scenes.SceneContext) => {
     ctx.reply("Добро пожаловать! Этот бот управляет регистрациями на второй митап релокейшн IT в Ташкенте.", {
         reply_markup: {
             keyboard: [
@@ -17,6 +17,15 @@ const sendMenu = (ctx: SceneContext) => {
 }
 
 mainScene.enter(ctx => sendMenu(ctx));
+
+mainScene.command('control', async ctx => {
+    if (!ctx.message?.chat.id) {
+        throw new Error("Null sender chat");
+    }
+    if(await hasAdminRights(ctx.message.chat.id.toString())) {
+        ctx.scene.enter('check_in_scene');
+    }
+});
 
 mainScene.on('text', ctx => {
     if(!isTextMessage(ctx.message)) {
