@@ -19,10 +19,16 @@ const requestForConfidence = async (bot: Telegraf<any>, chatId: number, requestC
     });
 }
 
-export const sendRequests = async (bot: Telegraf<any>, text: string, requests: Request[], onRequestSent: (requestId: string) => Promise<unknown>) => {
+export const sendRequests = async (bot: Telegraf<any>, text: string, requests: Request[], onRequestSent: (requestId: string) => Promise<unknown>, onRequestSendingError: (requestId: string) => Promise<unknown>) => {
     for (const request of requests) {
-        await requestForConfidence(bot, Number(request.userId), request.requestCode, text);
-        await onRequestSent(request.requestId);
+        try {
+            await requestForConfidence(bot, Number(request.userId), request.requestCode, text);
+            await onRequestSent(request.requestId);
+        }
+        catch(e) {
+            await onRequestSendingError(request.requestId);
+        }
+
         await delay(1000);
     }
 }
@@ -72,7 +78,10 @@ export const subscribeOnSentClarificationsAdminCommand = (bot: Telegraf<any>) =>
                 const text = match.groups['text'];
                 const requests = await getAllActiveRequests();
                 await ctx.reply("Команда принята к исполнению");
-                sendRequests(bot, text, requests, requestId => addLog(requestId, "Sent clarification text", "sentClarificationText")).then(() => ctx.reply("Рассылка завершена"));
+                sendRequests(bot, text, requests,
+                        requestId => addLog(requestId, "Sent clarification text", "sentClarificationText"),
+                    requestId => addLog(requestId, "Error while sending text", "sendClarificationTextError")
+                ).then(() => ctx.reply("Рассылка завершена"));
             } else {
                 ctx.reply("Некорректная команда");
             }
