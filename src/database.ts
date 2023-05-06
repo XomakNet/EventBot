@@ -48,7 +48,7 @@ export const addRegistration = async (eventId: string,
 
 export const hasPlacesForEvent = async (eventId: string): Promise<boolean> => {
     const events = await client.query("SELECT * FROM \"events\" WHERE \"eventId\" = $1", [eventId]);
-    const requestsCountData = await client.query("SELECT COUNT(*) as \"eventsCount\" FROM \"requests\" WHERE \"eventId\" = $1 AND status = $2", [eventId, "created"]);
+    const requestsCountData = await client.query("SELECT COUNT(*) as \"eventsCount\" FROM \"requests\" WHERE \"eventId\" = $1 AND status IN ('created', 'checkedIn')", [eventId]);
     return Number(events.rows[0].registrationsLimit) >= Number(requestsCountData.rows[0].eventsCount);
 }
 
