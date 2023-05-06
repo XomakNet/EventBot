@@ -8,6 +8,7 @@ import {confidenceOptions} from "./common_data";
 interface RegistrationSession extends SceneSessionData {
     currentStep: number;
     answers: string[];
+    isInPlaceRegistration: boolean;
 }
 
 interface Question {
@@ -79,11 +80,13 @@ const proceedAnswer = (ctx: Scenes.SceneContext<RegistrationSession>) => {
 export const registrationScene = new Scenes.BaseScene<Scenes.SceneContext<RegistrationSession>>("registration_scene");
 
 registrationScene.enter(async ctx => {
-    if (!await hasPlacesForEvent(eventId)) {
+    const isInPlaceRegistration = (ctx.scene.state as any)['inPlace'] ?? false;
+    if (!isInPlaceRegistration && !await hasPlacesForEvent(eventId)) {
         await ctx.reply("К сожалению, на мероприятие не осталось мест. Пожалуйста, попробуйте позже. Следите за новостями.");
         await ctx.scene.enter("main_scene");
         return;
     }
+    ctx.scene.session.isInPlaceRegistration = isInPlaceRegistration;
     ctx.scene.session.currentStep = 0;
     ctx.scene.session.answers = [];
     sendNextQuestion(ctx);
@@ -96,6 +99,7 @@ const addRecord = async (ctx: Scenes.SceneContext<RegistrationSession>) => {
     }
 
     const telegramName = ctx.message.from.username ?? null;
+    const isInPlaceRegistration = ctx.scene.session.isInPlaceRegistration;
 
     const code = await addRegistration(
         eventId,
@@ -105,9 +109,10 @@ const addRecord = async (ctx: Scenes.SceneContext<RegistrationSession>) => {
         "created",
         answers[1],
         answers[2],
-        answers[3]);
+        isInPlaceRegistration ? "Зарегистрировался на месте" : answers[3]);
 
-    await ctx.reply(`Спасибо. Регистрация выполнена, ваш код: ${code}.\nЖдём вас 6 мая в 17:30 в IMPACT.T (место и время начала изменилось).\nЕсли поменяются планы, то, пожалуйста, сообщите нам об этом через меню \"Мои регистрации\".`, {
+    const text = isInPlaceRegistration ? `Спасибо за регистрацию, ваш код: ${code}` : `Спасибо. Регистрация выполнена, ваш код: ${code}.\nЖдём вас 6 мая в 17:30 в IMPACT.T (место и время начала изменилось).\nЕсли поменяются планы, то, пожалуйста, сообщите нам об этом через меню \"Мои регистрации\".`;
+    await ctx.reply(text, {
         reply_markup: {
             remove_keyboard: true
         }

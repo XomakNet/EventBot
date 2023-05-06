@@ -22,20 +22,24 @@ mainScene.command('control', async ctx => {
     if (!ctx.message?.chat.id) {
         throw new Error("Null sender chat");
     }
-    if(await hasAdminRights(ctx.message.chat.id.toString())) {
+    if (await hasAdminRights(ctx.message.chat.id.toString())) {
         ctx.scene.enter('check_in_scene');
     }
 });
 
 mainScene.on('text', ctx => {
-    if(!isTextMessage(ctx.message)) {
+    if (!isTextMessage(ctx.message)) {
         ctx.reply("Некорректный ввод");
     }
 
-    switch(ctx.message.text) {
+    switch (ctx.message.text) {
         case "Новая регистрация":
             ctx.scene.leave();
             ctx.scene.enter("registration_scene");
+            break;
+        case "242":
+            ctx.scene.leave();
+            ctx.scene.enter("registration_scene", {inPlace: true});
             break;
         case "Мои регистрации":
             ctx.scene.leave();
