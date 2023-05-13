@@ -1,6 +1,7 @@
 import {Scenes} from "telegraf";
 import {isTextMessage} from "./typeguards";
 import {hasAdminRights} from "./database";
+import {adminId} from "./params";
 
 
 export const mainScene = new Scenes.BaseScene<Scenes.SceneContext>("main_scene");
@@ -24,6 +25,15 @@ mainScene.command('control', async ctx => {
     }
     if (await hasAdminRights(ctx.message.chat.id.toString())) {
         ctx.scene.enter('check_in_scene');
+    }
+});
+
+mainScene.command('broadcast', async ctx => {
+    if (!ctx.message?.chat.id) {
+        throw new Error("Null sender chat");
+    }
+    if (ctx.message.chat.id == adminId) {
+        ctx.scene.enter('broadcast_scene');
     }
 });
 

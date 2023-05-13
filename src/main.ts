@@ -4,6 +4,7 @@ import {myRegistrationScenes} from "./my_registrations";
 import {mainScene} from "./main_scene";
 import {subscribeOnReplyConfidence, subscribeOnSentClarificationsAdminCommand} from "./clarify_status";
 import {checkInScene} from "./checkin_scene";
+import {broadcastScene} from "./broadcast_scene";
 
 const bot = new Telegraf<Scenes.SceneContext>(process.env.BOT_TOKEN as string);
 
@@ -12,7 +13,8 @@ const stage = new Scenes.Stage<Scenes.SceneContext<any>>(
         mainScene,
         registrationScene,
         myRegistrationScenes,
-        checkInScene
+        checkInScene,
+        broadcastScene
     ], {default: "main_scene"});
 
 subscribeOnReplyConfidence(bot);

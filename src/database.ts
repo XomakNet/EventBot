@@ -74,6 +74,11 @@ export const getAllActiveRequests = async (): Promise<Request[]> => {
     return result.rows;
 }
 
+export const getAllCheckedInRequests = async (): Promise<Request[]> => {
+    const result = await client.query("SELECT * FROM requests WHERE status = $1", ["checkedIn"]);
+    return result.rows;
+}
+
 export const findActiveRequests = async (request: string): Promise<Request[]> => {
     const result = await client.query("SELECT * FROM requests WHERE status = $1 AND (\"requestCode\" ILIKE $2 OR \"name\" ILIKE $3)", ["created", `${request}%`, `%${request}%`]);
     return result.rows;
