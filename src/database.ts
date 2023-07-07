@@ -64,23 +64,23 @@ export const cancelRequest = async (requestId: string) => {
     await addLog(requestId, "", "cancelRequest");
 }
 
-export const getRegistrationForUser = async (userId: string): Promise<Request[]> => {
-    const result = await client.query("SELECT * FROM requests WHERE \"userId\" = $1 AND status = $2", [userId, "created"]);
+export const getRegistrationForUser = async (userId: string, eventId: string): Promise<Request[]> => {
+    const result = await client.query("SELECT * FROM requests WHERE \"userId\" = $1 AND status = $2 AND eventId = $3", [userId, "created", eventId]);
     return result.rows;
 }
 
-export const getAllActiveRequests = async (): Promise<Request[]> => {
-    const result = await client.query("SELECT * FROM requests WHERE status = $1", ["created"]);
+export const getAllActiveRequests = async (eventId: string): Promise<Request[]> => {
+    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND eventId = $2", ["created", eventId]);
     return result.rows;
 }
 
-export const getAllCheckedInRequests = async (): Promise<Request[]> => {
-    const result = await client.query("SELECT * FROM requests WHERE status = $1", ["checkedIn"]);
+export const getAllCheckedInRequests = async (eventId: string): Promise<Request[]> => {
+    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND \"eventId\" = $2", ["checkedIn", eventId]);
     return result.rows;
 }
 
-export const findActiveRequests = async (request: string): Promise<Request[]> => {
-    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND (\"requestCode\" ILIKE $2 OR \"name\" ILIKE $3)", ["created", `${request}%`, `%${request}%`]);
+export const findActiveRequests = async (request: string, eventId: string): Promise<Request[]> => {
+    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND eventId = $2 AND (\"requestCode\" ILIKE $3 OR \"name\" ILIKE $4)", ["created", eventId, `${request}%`, `%${request}%`]);
     return result.rows;
 };
 
@@ -90,7 +90,7 @@ export const checkIn = async (requestId: string): Promise<void> => {
     await addLog(requestId, "", "checkIn");
 };
 
-export const hasAdminRights = async (userId: string): Promise<boolean> => {
-    const result = await client.query("SELECT count(*) FROM admins WHERE \"userId\" = $1", [userId]);
+export const hasAdminRole = async (userId: string, role: string): Promise<boolean> => {
+    const result = await client.query("SELECT count(*) FROM admins WHERE \"userId\" = $1 AND \"roles\" ILIKE $2", [userId, `%${role}%`]);
     return Number(result.rows[0].count) === 1;
 }

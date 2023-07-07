@@ -1,6 +1,7 @@
 import {Scenes} from "telegraf";
 import {checkIn, findActiveRequests} from "./database";
 import {isTextMessage} from "./typeguards";
+import {eventId} from "./params";
 
 export const checkInScene = new Scenes.BaseScene<Scenes.SceneContext>("check_in_scene");
 
@@ -17,7 +18,7 @@ checkInScene.on('text', async ctx => {
     const text = ctx.message.text;
     const foundOptionMatchGroups = text.match(foundOptionRegex)?.groups;
     const query = foundOptionMatchGroups ? foundOptionMatchGroups['code'] : text;
-    const requests = await findActiveRequests(query);
+    const requests = await findActiveRequests(query, eventId);
     if (requests.length === 1 && foundOptionMatchGroups) {
         const request = requests[0];
         await checkIn(request.requestId);

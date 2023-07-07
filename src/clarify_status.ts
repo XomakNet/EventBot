@@ -6,11 +6,11 @@ import {
     addLog,
     cancelRequest,
     getAllActiveRequests,
-    getRegistrationForUser,
+    getRegistrationForUser, hasAdminRole,
     Request,
     updateConfidence
 } from "./database";
-import {adminId} from "./params";
+import {eventId} from "./params";
 
 const requestForConfidence = async (bot: Telegraf<any>, chatId: number, requestCode: string, text: string) => {
     const confidenceKeyboard = [...confidenceOptions, "Не пойду"].map(x => [Markup.button.callback(x, `replyConfidence_${requestCode}_'${x}'`)])
@@ -49,7 +49,7 @@ export const subscribeOnReplyConfidence = (bot: Telegraf<any>) => {
         if (!chatId) {
             throw new Error("Null sender chat");
         }
-        const usersRegistrations = await getRegistrationForUser(chatId.toString());
+        const usersRegistrations = await getRegistrationForUser(chatId.toString(), eventId);
         const request = usersRegistrations.find(x => x.requestCode === requestCode);
         if (request) {
             if (confidenceOptions.findIndex(x => x === answer) !== -1) {
@@ -72,11 +72,12 @@ export const subscribeOnSentClarificationsAdminCommand = (bot: Telegraf<any>) =>
         if (!ctx.message?.chat.id) {
             throw new Error("Null sender chat");
         }
-        if (isTextMessage(ctx.message) && ctx.message.chat.id == adminId) {
+        const hasAdminRole = await hasAdminRole(ctx.message.chat.id.toString(), 'admin');
+        if (isTextMessage(ctx.message) && hasAdminRole) {
             const match = ctx.message.text.match(commandRegex);
             if (match && match.groups) {
                 const text = match.groups['text'];
-                const requests = await getAllActiveRequests();
+                const requests = await getAllActiveRequests(eventId);
                 await ctx.reply("Команда принята к исполнению");
                 sendRequests(bot, text, requests,
                         requestId => addLog(requestId, "Sent clarification text", "sentClarificationText"),

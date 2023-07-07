@@ -2,6 +2,7 @@ import {Scenes} from "telegraf";
 import {isTextMessage} from "./typeguards";
 import {addLog, getAllCheckedInRequests, Request} from "./database";
 import {delay} from "./utils";
+import {eventId} from "./params";
 
 export const broadcastScene = new Scenes.BaseScene<Scenes.SceneContext>("broadcast_scene");
 
@@ -22,7 +23,7 @@ broadcastScene.on('message', async ctx => {
     if (isTextMessage(ctx.message) && ctx.message.text === 'Отмена') {
         ctx.scene.leave();
     } else {
-        const requests = await getAllCheckedInRequests();
+        const requests = await getAllCheckedInRequests(eventId);
         await ctx.reply("Команда принята к исполнению");
         sendMessages(ctx, requests,
             requestId => addLog(requestId, "Sent broadcast text", "sentBroadcastText"),
