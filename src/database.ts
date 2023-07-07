@@ -65,12 +65,12 @@ export const cancelRequest = async (requestId: string) => {
 }
 
 export const getRegistrationForUser = async (userId: string, eventId: string): Promise<Request[]> => {
-    const result = await client.query("SELECT * FROM requests WHERE \"userId\" = $1 AND status = $2 AND eventId = $3", [userId, "created", eventId]);
+    const result = await client.query("SELECT * FROM requests WHERE \"userId\" = $1 AND status = $2 AND \"eventId\" = $3", [userId, "created", eventId]);
     return result.rows;
 }
 
 export const getAllActiveRequests = async (eventId: string): Promise<Request[]> => {
-    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND eventId = $2", ["created", eventId]);
+    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND \"eventId\" = $2", ["created", eventId]);
     return result.rows;
 }
 
@@ -80,7 +80,7 @@ export const getAllCheckedInRequests = async (eventId: string): Promise<Request[
 }
 
 export const findActiveRequests = async (request: string, eventId: string): Promise<Request[]> => {
-    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND eventId = $2 AND (\"requestCode\" ILIKE $3 OR \"name\" ILIKE $4)", ["created", eventId, `${request}%`, `%${request}%`]);
+    const result = await client.query("SELECT * FROM requests WHERE status = $1 AND \"eventId\" = $2 AND (\"requestCode\" ILIKE $3 OR \"name\" ILIKE $4)", ["created", eventId, `${request}%`, `%${request}%`]);
     return result.rows;
 };
 
