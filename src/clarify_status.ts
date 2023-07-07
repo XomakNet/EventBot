@@ -6,7 +6,8 @@ import {
     addLog,
     cancelRequest,
     getAllActiveRequests,
-    getRegistrationForUser, hasAdminRole,
+    getRegistrationForUser,
+    hasAdminRole,
     Request,
     updateConfidence
 } from "./database";
@@ -72,8 +73,8 @@ export const subscribeOnSentClarificationsAdminCommand = (bot: Telegraf<any>) =>
         if (!ctx.message?.chat.id) {
             throw new Error("Null sender chat");
         }
-        const hasAdminRole = await hasAdminRole(ctx.message.chat.id.toString(), 'admin');
-        if (isTextMessage(ctx.message) && hasAdminRole) {
+        const authorHasAdminRole = await hasAdminRole(ctx.message.chat.id.toString(), 'admin');
+        if (isTextMessage(ctx.message) && authorHasAdminRole) {
             const match = ctx.message.text.match(commandRegex);
             if (match && match.groups) {
                 const text = match.groups['text'];
