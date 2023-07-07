@@ -6,7 +6,7 @@ import {hasAdminRole} from "./database";
 export const mainScene = new Scenes.BaseScene<Scenes.SceneContext>("main_scene");
 
 const sendMenu = (ctx: Scenes.SceneContext) => {
-    ctx.reply("Добро пожаловать! Этот бот управляет регистрациями на второй митап релокейшн IT в Ташкенте.", {
+    ctx.reply("Добро пожаловать! Этот бот управляет регистрациями на митап релокейшн IT в Ташкенте.", {
         reply_markup: {
             keyboard: [
                 [{text: "Новая регистрация"}],
