@@ -14,7 +14,9 @@
   "dependencies": {
     "@types/node": "^18.15.11",
     "@types/pg": "^8.6.6",
+    "@types/qrcode": "^1.5.1",
     "pg": "^8.10.0",
+    "qrcode": "^1.5.3",
     "telegraf": "^4.12.2",
     "ts-node": "^10.9.1",
     "typegram": "^5.0.0",

@@ -4,6 +4,8 @@ import {SceneSessionData} from "telegraf/typings/scenes";
 import {isTextMessage} from "./typeguards";
 import {confidenceOptions} from "./common_data";
 import {eventId} from "./params";
+import QRCode from "qrcode";
+import {Request} from "./database"
 
 
 interface MyRegistrationsSession extends SceneSessionData {
@@ -12,23 +14,38 @@ interface MyRegistrationsSession extends SceneSessionData {
 
 export const myRegistrationScenes = new Scenes.BaseScene<Scenes.SceneContext<MyRegistrationsSession>>("my_registrations_scene");
 
+const sendRegistrationsList = async (registrations: Request[], ctx: Scenes.SceneContext<MyRegistrationsSession>) => {
+    const registrationButtons = registrations.map(x => [{"text": `${x.requestCode}: ${x.name}`}]);
+    const text = registrations.length > 0 ? "У вас есть следующие регистрации. Выберите регистрацию для изменения или отмены." : "У вас нет регистраций на мероприятие."
+    ctx.reply(text, {
+        reply_markup: {
+            keyboard: [
+                [{text: "Отмена"}],
+                [{text: "QR-коды"}],
+                ...registrationButtons
+            ]
+        }
+    });
+}
+
 myRegistrationScenes.enter(async ctx => {
     if(!ctx.message?.chat.id) {
         throw new Error("Got message without chatId");
     }
 
     const registrations = await getRegistrationForUser(ctx.message.chat.id.toString(), eventId);
-    const registrationButtons = registrations.map(x => [{"text": `${x.requestCode}: ${x.name}`}]);
-    const text = registrations.length > 0 ? "У вас есть следующие регистрации. Выберите регистрацию для изменения или отмены." : "У вас нет регистраций на мероприятие."
-    ctx.reply(text, {
-        reply_markup: {
-            keyboard: [
-                [{text: "Отмена"}], ...registrationButtons
-            ]
-        }
-    });
+    await sendRegistrationsList(registrations, ctx);
 
 });
+
+const sendQrs = async (registrations: Request[], ctx: Scenes.SceneContext<MyRegistrationsSession>) => {
+    for(const registration of registrations) {
+        const dataUrl = await QRCode.toDataURL(registration.requestCode, {errorCorrectionLevel: 'H', width: 500 });
+        await ctx.replyWithPhoto({source: Buffer.from(dataUrl.substring(21), 'base64')});
+    }
+
+    await sendRegistrationsList(registrations, ctx);
+}
 
 myRegistrationScenes.on('text', async ctx => {
 	const registrations = await getRegistrationForUser(ctx.message.chat.id.toString(), eventId);
@@ -39,6 +56,11 @@ myRegistrationScenes.on('text', async ctx => {
     if (!ctx.scene.session.requestId) {
         if(ctx.message.text === "Отмена") {
             await ctx.scene.enter("main_scene");
+            return;
+        }
+
+        if(ctx.message.text === "QR-коды") {
+            await sendQrs(registrations, ctx);
             return;
         }
 
