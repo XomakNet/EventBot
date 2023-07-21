@@ -1,12 +1,18 @@
-import {Scenes} from "telegraf";
-import {checkIn, findActiveRequests} from "./database";
+import {Markup, Scenes} from "telegraf";
+import {checkIn, findActiveRequests, getAdminToken} from "./database";
 import {isTextMessage} from "./typeguards";
-import {eventId} from "./params";
+import {eventId, scanningAppUrlPrefix} from "./params";
 
 export const checkInScene = new Scenes.BaseScene<Scenes.SceneContext>("check_in_scene");
 
 checkInScene.enter(ctx => {
-    ctx.reply("Введите 6-ти значный код регистрации или его часть или имя, на которое осуществлена регистрация.");
+    ctx.reply("Введите 6-ти значный код регистрации или его часть или имя, на которое осуществлена регистрация.", {
+        reply_markup: {
+            keyboard: [
+                [{text: "Выход"}, {text: "Сканер"}]
+            ]
+        }
+    });
 });
 
 checkInScene.start(ctx => ctx.scene.enter('main_scene'));
@@ -15,6 +21,24 @@ checkInScene.on('text', async ctx => {
     if (!isTextMessage(ctx.message)) {
         ctx.reply("Некорректный ввод, попробуйте ещё раз.");
     }
+
+    if(ctx.message.text === 'Выход') {
+        await ctx.scene.enter("main_scene");
+        return;
+    }
+
+    if(ctx.message.text === 'Сканер') {
+        if (!ctx.message?.chat.id) {
+            throw new Error("Null sender chat");
+        }
+        const token = await getAdminToken(ctx.message.chat.id.toString());
+        const keyboard = [Markup.button.url("Сканер", scanningAppUrlPrefix+token)];
+        await ctx.reply("Используйте кнопку для запуска сканера.", {
+            ...Markup.inlineKeyboard(keyboard)
+        });
+        return;
+    }
+
     const text = ctx.message.text;
     const foundOptionMatchGroups = text.match(foundOptionRegex)?.groups;
     const query = foundOptionMatchGroups ? foundOptionMatchGroups['code'] : text;

@@ -94,3 +94,8 @@ export const hasAdminRole = async (userId: string, role: string): Promise<boolea
     const result = await client.query("SELECT count(*) FROM admins WHERE \"userId\" = $1 AND \"roles\" ILIKE $2", [userId, `%${role}%`]);
     return Number(result.rows[0].count) === 1;
 }
+
+export const getAdminToken = async (userId: string): Promise<boolean> => {
+    const result = await client.query("SELECT token FROM admins WHERE \"userId\" = $1", [userId]);
+    return result.rows[0].token;
+}
