@@ -1,3 +1,8 @@
+![GitHub](https://img.shields.io/github/license/XomakNet/EventBot)
+![GitHub top language](https://img.shields.io/github/languages/top/XomakNet/EventBot)
+![GitHub repo size](https://img.shields.io/github/repo-size/XomakNet/EventBot)
+
+
 ## 1. Настройка проекта
 #### 1.1. Настройка переменных
 Необходимо скопировать файл `.env.example` в `.env`.
