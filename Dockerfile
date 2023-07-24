@@ -15,6 +15,6 @@ FROM node:20-alpine3.16
 
 WORKDIR /app
 
-COPY --from=builder /app/src/*.js /app/src
+COPY --from=builder /app/src/*.js /app/src/
 
 CMD [ "node", "./src/main.js" ]
