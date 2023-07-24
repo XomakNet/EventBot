@@ -1,3 +1,7 @@
+# Application
 node_modules
-.idea
 package-lock.json
+.env
+
+# Development
+.idea

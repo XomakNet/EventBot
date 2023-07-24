@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: app
+    restart: always
+    env_file:
+      - .env
+
+  db:
+    image: postgres:14.5
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PGPASSFILE=/root/database/.pgpass
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - ./database:/root/database
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
