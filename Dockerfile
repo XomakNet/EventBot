@@ -1,19 +1,20 @@
-FROM node:20-alpine3.16
-
-RUN apk update
+FROM node:20-alpine3.16 as builder
 
 WORKDIR /app
 
 COPY package*.json ./
 COPY tsconfig.json ./
 
+RUN npm install
+
 COPY src /app/src
 
-RUN ls -a
-
-RUN npm install
 RUN npm run build
 
-EXPOSE 7777
+FROM node:20-alpine3.16
+
+WORKDIR /app
+
+COPY --from=builder /app/src/*.js /app/src
 
 CMD [ "node", "./src/main.js" ]
