@@ -1,0 +1,8 @@
+# Development
+.git
+.idea
+
+# Application
+node_modules
+.gitignore
+package-lock.json
