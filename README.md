@@ -2,28 +2,34 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/XomakNet/EventBot)
 ![GitHub repo size](https://img.shields.io/github/repo-size/XomakNet/EventBot)
 
+# EventBot
+EventBot — simple Telegram bot, providing registration, check in and communication with guests for event organizers (meetups, conferences, etc.).
+## Notice
+Currently the bot is in the beginning of the development. It was deleloped in a limited time and we are not proud of its code quality. However, it's almost ready for use in basic scenario (all you need is to change texts, which currently are hard-coded) and was tested during several meetups.
+## Features
+### User self-registration and request status control
+Using this bot anyone can register himself to your event. During registration bot can collect answers for several questions (e.g. proffesional sphere and level). Also, bot collects "degree of confidence" ("I'll definetly go", "Probably I will", "I am not sure") — it's very helpful for free event organizers.
+Later users can change their confidence or to cancel the registration.
+### Check in
+You can give "inspector" permission for any user, making control mode available for him. In this mode "inspector" can check in users, using their special 6-chars registration code or by name.
+Also, the bot generates QR-code with this special 6-chars code. During our meetup it was scanned using our simple on AppSmith, which probably will be also published here.
 
-## 1. Настройка проекта
-#### 1.1. Настройка переменных
-Необходимо скопировать файл `.env.example` в `.env`.
-После этого прописать свои значения в `.env`.
+### Degree of confidence clearification
+Before the event you might want to estimate number of guests. To do this you can send custom message to all registered users with inline buttons with "degree of confidence". It will remind guests about event and allow them to change their mind in seconds.
 
-#### 1.2. Запуск сервиса
-```shell
-make start
-```
+### Message broadcasting
+During or after an event you can broadcast a message to all checked in guests.
 
-#### 1.3. Инициализация базы данных
-После старта сервиса нужно создать базу данных.  
-Но сначала нужно убедиться что всё запустилось корректно.  
-Это можно сделать выполнив команду `make status`.  
-Вывод в консоль должен быть примерно таким:
-```shell
-NAME                IMAGE               COMMAND                  SERVICE             CREATED             STATUS              PORTS
-eventbot-app-1      eventbot-app        "docker-entrypoint.s…"   app                 4 minutes ago       Up 3 minutes        
-eventbot-db-1       postgres:14.5       "docker-entrypoint.s…"   db                  22 minutes ago      Up 22 minutes       127.0.0.1:5432->5432/tcp
-```
-Если всё ок, то нужно выполнить команду создания базы данных:
-```shell
-make init-db
-```
+## Bot management
+Currently bot does not have special admin interface or admin mode (except check in, confidence clarification and message broadcasting modes), therefore we recommend to use database management platform (e.g. pgAdmin).
+## Commands reference
+/control - enters the control mode for inspector (requires "inspector" role)
+/broadcast - enters message broadcasting mode (requires "admin" role)
+/sendClarifications [Clarification text] - sends text with inline-clarification buttons to all registered guests (requires "admin" role)
+## Setup and start
+Read the [doc](https://github.com/XomakNet/EventBot/blob/master/docs/Start.md)
+## License and contribution
+We are open for your PRs.
+This repository has been released under the  [GPT-3 License](https://github.com/XomakNet/EventBot/blob/master/LICENSE.md).
+By contributing to EventBot, you agree that your contributions will be licensed under its MIT License.
+
