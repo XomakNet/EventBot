@@ -117,7 +117,7 @@ const addRecord = async (ctx: Scenes.SceneContext<RegistrationSession>) => {
         answers[3],
         isInPlaceRegistration ? "Зарегистрировался на месте" : answers[4]);
 
-    const text = isInPlaceRegistration ? `Спасибо за регистрацию, ваш код: ${code}` : `Спасибо. Регистрация выполнена, ваш код: ${code}.\nЖдём вас 22 июля в 17:00 в IMPACT.T.\nЕсли поменяются планы, то, пожалуйста, сообщите нам об этом через меню \"Мои регистрации\".`;
+    const text = isInPlaceRegistration ? `Спасибо за регистрацию, ваш код: ${code}` : `Спасибо. Регистрация выполнена, ваш код: ${code}.\nЖдём вас 26 августа в 17:00 в IMPACT.T.\nЕсли поменяются планы, то, пожалуйста, сообщите нам об этом через меню \"Мои регистрации\".`;
     await ctx.reply(text, {
         reply_markup: {
             remove_keyboard: true
