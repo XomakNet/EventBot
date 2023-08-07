@@ -26,10 +26,11 @@ export const addRegistration = async (eventId: string,
                                       status: Status,
                                       professionalSphere: string,
                                       professionalLevel: string,
+                                      companyName: string,
                                       confidence: string): Promise<string> => {
     const requestCode = makeId(6);
     const requestId = randomUUID();
-    const values = [eventId, requestId, requestCode, userId, name, telegramName, status, professionalSphere, professionalLevel, confidence];
+    const values = [eventId, requestId, requestCode, userId, name, telegramName, status, professionalSphere, professionalLevel, companyName, confidence];
     await client.query("INSERT INTO requests " +
         "(\"eventId\", " +
         "\"requestId\", " +
@@ -40,8 +41,9 @@ export const addRegistration = async (eventId: string,
         "status, " +
         "\"professionalSphere\", " +
         "\"professionalLevel\"," +
+        "\"companyName\"," +
         "\"confidence\")" +
-        "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);", values);
+        "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);", values);
     await addLog(requestId, "", "newRegistration");
     return requestCode;
 }
